@@ -1,14 +1,15 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Math Dashboard", layout="wide")
 
 st.title("📊 Math Students Performance Dashboard")
+st.markdown("Interactive exploratory analysis of students performance data.")
 
-st.write("App started successfully ✅")
-
-try:
-    df = pd.read_csv(
+@st.cache_data
+def load_data():
+    return pd.read_csv(
         "MathEdataset.csv",
         sep=";",
         encoding="latin1",
@@ -16,18 +17,49 @@ try:
         on_bad_lines="skip"
     )
 
-    st.success("Dataset loaded successfully")
-    st.write("Shape:", df.shape)
-    st.dataframe(df.head())
+df = load_data()
 
-    numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns
+st.subheader("Dataset Preview")
+st.dataframe(df.head())
 
-    if len(numeric_cols) > 0:
-        feature = st.selectbox("Select numeric feature", numeric_cols)
-        st.bar_chart(df[feature])
-    else:
-        st.warning("No numeric columns found")
+numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns
+feature = st.selectbox("Select a numeric feature", numeric_cols)
 
-except Exception as e:
-    st.error("Application error ❌")
-    st.write(e)
+# Histogram
+st.subheader("Histogram")
+fig, ax = plt.subplots()
+ax.hist(df[feature].dropna(), bins=10)
+ax.set_xlabel(feature)
+ax.set_ylabel("Count")
+ax.set_title(f"Distribution of {feature}")
+st.pyplot(fig)
+
+# Boxplot
+st.subheader("Boxplot")
+fig, ax = plt.subplots()
+ax.boxplot(df[feature].dropna(), vert=False)
+ax.set_title(f"Boxplot of {feature}")
+st.pyplot(fig)
+
+# Feature vs Target
+if "G3" in df.columns:
+    st.subheader("Feature vs Final Grade (G3)")
+    fig, ax = plt.subplots()
+    ax.scatter(df[feature], df["G3"])
+    ax.set_xlabel(feature)
+    ax.set_ylabel("Final Grade (G3)")
+    ax.set_title(f"{feature} vs G3")
+    st.pyplot(fig)
+
+# Model results
+st.markdown("---")
+st.subheader("Model Performance Comparison")
+
+results_df = pd.DataFrame({
+    "Model": ["Logistic Regression", "SVM", "Random Forest"],
+    "Accuracy": [0.78, 0.79, 0.80],
+    "F1-score": [0.77, 0.78, 0.80]
+})
+
+st.dataframe(results_df)
+st.bar_chart(results_df.set_index("Model"))
