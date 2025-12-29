@@ -3,18 +3,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # =========================
-# Page configuration
+# Page Configuration
 # =========================
 st.set_page_config(
     page_title="Math Students Performance Dashboard",
-    layout="wide"
+    layout="centered"
 )
 
 st.title("📊 Math Students Performance Dashboard")
-st.write("This dashboard presents clear and meaningful visualizations of the Math Education dataset.")
+st.write(
+    "This dashboard provides a clear and meaningful visualization of student performance "
+    "based on the Math Education dataset."
+)
 
 # =========================
-# Load data
+# Load Dataset
 # =========================
 @st.cache_data
 def load_data():
@@ -31,29 +34,33 @@ df = load_data()
 st.success("Dataset loaded successfully ✅")
 
 # =========================
-# Dataset preview
+# Dataset Overview
 # =========================
 st.subheader("📄 Dataset Preview")
 st.dataframe(df.head())
 
+st.markdown("---")
+
 # =========================
-# Distribution of Type of Answer
+# Distribution of Type of Answer (Percentages)
 # =========================
 st.subheader("📌 Distribution of Type of Answer")
 
-type_counts = df["Type of Answer"].value_counts(normalize=True) * 100
+type_percentage = df["Type of Answer"].value_counts(normalize=True) * 100
 
-st.bar_chart(type_counts)
+st.bar_chart(type_percentage)
 
 st.write(
-    "This bar chart shows the percentage distribution of correct (1) and incorrect (0) answers. "
-    "Using proportions instead of raw counts improves clarity for large datasets."
+    "This chart shows the percentage of correct (1) and incorrect (0) answers. "
+    "Percentages are used instead of raw counts to improve clarity for large datasets."
 )
+
+st.markdown("---")
 
 # =========================
 # Boxplot: Final Grade vs Type of Answer
 # =========================
-st.subheader("📈 Final Grade vs Type of Answer")
+st.subheader("📦 Final Grade Distribution by Type of Answer")
 
 fig, ax = plt.subplots(figsize=(6, 4))
 
@@ -63,29 +70,30 @@ df.boxplot(
     ax=ax
 )
 
-ax.set_title("Final Grade Distribution by Type of Answer")
 ax.set_xlabel("Type of Answer (0 = Incorrect, 1 = Correct)")
-ax.set_ylabel("Final Grade")
+ax.set_ylabel("Final Grade (G3)")
+ax.set_title("Final Grade vs Type of Answer")
 plt.suptitle("")
 
 st.pyplot(fig)
 
 st.write(
-    "The boxplot highlights the relationship between students' final grades and their type of answer. "
+    "The boxplot compares the distribution of final grades based on the type of answer. "
     "This visualization helps assess whether correct answers are associated with higher academic performance."
 )
 
-# =========================
-# Summary statistics
-# =========================
-st.subheader("📊 Final Grade Statistics")
+st.markdown("---")
 
+# =========================
+# Summary Statistics
+# =========================
+st.subheader("📊 Final Grade Summary Statistics")
 st.write(df["G3"].describe())
 
 # =========================
 # Footer
 # =========================
-st.markdown("---")
 st.markdown(
-    "📘 **Note:** Visualizations were selected to avoid overplotting and ensure interpretability for binary and large-scale data."
+    "📘 **Note:** Binary features such as *Type of Answer* are best visualized using "
+    "aggregated or comparative plots rather than raw-value charts."
 )
