@@ -2,11 +2,20 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Math Dashboard", layout="wide")
+# =========================
+# Page configuration
+# =========================
+st.set_page_config(
+    page_title="Math Students Performance Dashboard",
+    layout="wide"
+)
 
 st.title("📊 Math Students Performance Dashboard")
-st.markdown("Interactive exploratory analysis of students performance data.")
+st.write("This dashboard presents clear and meaningful visualizations of the Math Education dataset.")
 
+# =========================
+# Load data
+# =========================
 @st.cache_data
 def load_data():
     return pd.read_csv(
@@ -19,60 +28,64 @@ def load_data():
 
 df = load_data()
 
-st.subheader("Dataset Preview")
+st.success("Dataset loaded successfully ✅")
+
+# =========================
+# Dataset preview
+# =========================
+st.subheader("📄 Dataset Preview")
 st.dataframe(df.head())
 
-numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns
-feature = st.selectbox("Select a numeric feature", numeric_cols)
+# =========================
+# Distribution of Type of Answer
+# =========================
+st.subheader("📌 Distribution of Type of Answer")
 
-st.subheader("Type of Answer Percentage")
+type_counts = df["Type of Answer"].value_counts(normalize=True) * 100
 
-fig, ax = plt.subplots()
-ax.pie(
-    df["Type of Answer"].value_counts(),
-    labels=["0 (Wrong)", "1 (Correct)"],
-    autopct="%1.1f%%",
-    startangle=90
+st.bar_chart(type_counts)
+
+st.write(
+    "This bar chart shows the percentage distribution of correct (1) and incorrect (0) answers. "
+    "Using proportions instead of raw counts improves clarity for large datasets."
 )
-ax.axis("equal")
+
+# =========================
+# Boxplot: Final Grade vs Type of Answer
+# =========================
+st.subheader("📈 Final Grade vs Type of Answer")
+
+fig, ax = plt.subplots(figsize=(6, 4))
+
+df.boxplot(
+    column="G3",
+    by="Type of Answer",
+    ax=ax
+)
+
+ax.set_title("Final Grade Distribution by Type of Answer")
+ax.set_xlabel("Type of Answer (0 = Incorrect, 1 = Correct)")
+ax.set_ylabel("Final Grade")
+plt.suptitle("")
+
 st.pyplot(fig)
 
+st.write(
+    "The boxplot highlights the relationship between students' final grades and their type of answer. "
+    "This visualization helps assess whether correct answers are associated with higher academic performance."
+)
 
-# Histogram
-st.subheader("Histogram")
-fig, ax = plt.subplots()
-ax.hist(df[feature].dropna(), bins=10)
-ax.set_xlabel(feature)
-ax.set_ylabel("Count")
-ax.set_title(f"Distribution of {feature}")
-st.pyplot(fig)
+# =========================
+# Summary statistics
+# =========================
+st.subheader("📊 Final Grade Statistics")
 
-# Boxplot
-st.subheader("Boxplot")
-fig, ax = plt.subplots()
-ax.boxplot(df[feature].dropna(), vert=False)
-ax.set_title(f"Boxplot of {feature}")
-st.pyplot(fig)
+st.write(df["G3"].describe())
 
-# Feature vs Target
-if "G3" in df.columns:
-    st.subheader("Feature vs Final Grade (G3)")
-    fig, ax = plt.subplots()
-    ax.scatter(df[feature], df["G3"])
-    ax.set_xlabel(feature)
-    ax.set_ylabel("Final Grade (G3)")
-    ax.set_title(f"{feature} vs G3")
-    st.pyplot(fig)
-
-# Model results
+# =========================
+# Footer
+# =========================
 st.markdown("---")
-st.subheader("Model Performance Comparison")
-
-results_df = pd.DataFrame({
-    "Model": ["Logistic Regression", "SVM", "Random Forest"],
-    "Accuracy": [0.78, 0.79, 0.80],
-    "F1-score": [0.77, 0.78, 0.80]
-})
-
-st.dataframe(results_df)
-st.bar_chart(results_df.set_index("Model"))
+st.markdown(
+    "📘 **Note:** Visualizations were selected to avoid overplotting and ensure interpretability for binary and large-scale data."
+)
