@@ -3,9 +3,12 @@ import pandas as pd
 
 st.set_page_config(page_title="Math Dashboard", layout="wide")
 
-@st.cache_data
-def load_data():
-    return pd.read_csv(
+st.title("📊 Math Students Performance Dashboard")
+
+st.write("App started successfully ✅")
+
+try:
+    df = pd.read_csv(
         "MathEdataset.csv",
         sep=";",
         encoding="latin1",
@@ -13,20 +16,18 @@ def load_data():
         on_bad_lines="skip"
     )
 
-df = load_data()
+    st.success("Dataset loaded successfully")
+    st.write("Shape:", df.shape)
+    st.dataframe(df.head())
 
-st.title("📊 Math Students Performance Dashboard")
+    numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns
 
-st.subheader("Dataset Preview")
-st.dataframe(df.head())
+    if len(numeric_cols) > 0:
+        feature = st.selectbox("Select numeric feature", numeric_cols)
+        st.bar_chart(df[feature])
+    else:
+        st.warning("No numeric columns found")
 
-numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns
-
-if len(numeric_cols) > 0:
-    feature = st.selectbox("Select a numeric feature", numeric_cols)
-    st.subheader(f"Distribution of {feature}")
-    st.bar_chart(df[feature])
-else:
-    st.warning("No numeric columns found.")
-
-
+except Exception as e:
+    st.error("Application error ❌")
+    st.write(e)
