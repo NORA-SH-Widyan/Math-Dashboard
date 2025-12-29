@@ -25,6 +25,19 @@ st.dataframe(df.head())
 numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns
 feature = st.selectbox("Select a numeric feature", numeric_cols)
 
+st.subheader("Type of Answer Percentage")
+
+fig, ax = plt.subplots()
+ax.pie(
+    df["Type of Answer"].value_counts(),
+    labels=["0 (Wrong)", "1 (Correct)"],
+    autopct="%1.1f%%",
+    startangle=90
+)
+ax.axis("equal")
+st.pyplot(fig)
+
+
 # Histogram
 st.subheader("Histogram")
 fig, ax = plt.subplots()
@@ -50,11 +63,6 @@ if "G3" in df.columns:
     ax.set_ylabel("Final Grade (G3)")
     ax.set_title(f"{feature} vs G3")
     st.pyplot(fig)
-
-st.subheader("Distribution of Type of Answer")
-type_counts = df["Type of Answer"].value_counts(normalize=True) * 100
-st.bar_chart(type_counts)
-
 
 # Model results
 st.markdown("---")
