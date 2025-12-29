@@ -51,6 +51,11 @@ if "G3" in df.columns:
     ax.set_title(f"{feature} vs G3")
     st.pyplot(fig)
 
+st.subheader("Distribution of Type of Answer")
+type_counts = df["Type of Answer"].value_counts(normalize=True) * 100
+st.bar_chart(type_counts)
+
+
 # Model results
 st.markdown("---")
 st.subheader("Model Performance Comparison")
