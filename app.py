@@ -9,7 +9,7 @@ st.write("App started successfully ✅")
 
 try:
     df = pd.read_csv(
-        "MathEdataset (2).csv",
+        "MathEdataset.csv",
         sep=";",
         encoding="latin1",
         engine="python",
